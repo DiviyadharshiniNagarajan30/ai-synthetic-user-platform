@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SynUser | AI Research Studio</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar">
+    <a class="brand" href="#/overview/dashboard">
+      <span class="brand-mark">S</span>
+      <span>SynUser <small>AI Research Studio</small></span>
+    </a>
+
+    <nav class="side-nav" aria-label="Main">
+      <button class="side-link" data-page="overview"><span class="ico">▦</span>Overview</button>
+      <button class="side-link" data-page="personas"><span class="ico">☺</span>Persona Generation</button>
+      <button class="side-link" data-page="survey"><span class="ico">☰</span>Survey</button>
+      <button class="side-link" data-page="interview"><span class="ico">✎</span>Interview</button>
+    </nav>
+
+    <div class="side-section">
+      <span class="side-title">Projects</span>
+      <button id="newProjectBtn" class="new-project">+ New project</button>
+    </div>
+    <div id="projectList" class="project-list" aria-live="polite"></div>
+
+    <div class="sidebar-bottom">
+      <div id="statusList" class="status-list"></div>
+      <button id="settingsBtn" class="icon-btn" title="Backend settings" aria-label="Backend settings">⚙</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <button id="menuBtn" class="icon-btn menu-btn" aria-label="Open menu">☰</button>
+      <div class="topbar-title">
+        <strong id="pageTitle">Overview</strong>
+        <span id="projectPill" class="project-pill">No project selected</span>
+      </div>
+      <nav id="topTabs" class="nav-tabs" aria-label="Sections"></nav>
+    </header>
+
+    <section class="content">
+      <div id="notice" class="notice hidden" role="alert"></div>
+      <div id="noProject" class="empty-state hidden">
+        <h2>Create a project to begin your research.</h2>
+        <p>Projects keep personas, surveys, interviews and reports together.</p>
+        <button class="button primary" data-action="new-project">Create project</button>
+      </div>
+
+      <!-- ============ OVERVIEW ============ -->
+      <section class="page hidden" id="page-overview">
+        <div class="tab-panel" data-tab="dashboard">
+          <div class="welcome-row">
+            <div>
+              <h1 id="ovName">Project</h1>
+              <p class="subheading" id="ovDesc"></p>
+            </div>
+            <div class="row-actions">
+              <button class="button secondary" id="ovEdit">Edit project</button>
+              <button class="button primary" data-goto="personas/generate">Generate personas</button>
+            </div>
+          </div>
+          <div id="ovMetrics" class="metric-grid"></div>
+          <div class="shortcut-row" id="ovShortcuts">
+            <button class="button secondary" data-goto="survey/generate">Start a survey</button>
+            <button class="button secondary" data-goto="interview/start">Start an interview</button>
+            <button class="button secondary" data-goto="survey/history">Survey history</button>
+            <button class="button secondary" data-goto="interview/history">Interview history</button>
+          </div>
+          <div class="two-col">
+            <div class="panel"><h2>Latest surveys</h2><div id="ovSurveys"></div></div>
+            <div class="panel"><h2>Latest interviews</h2><div id="ovInterviews"></div></div>
+          </div>
+          <div class="panel"><h2>Recent activity</h2><div id="ovActivity"></div></div>
+          <p class="fine-print">All personas and responses are AI-generated simulations, not genuine customer feedback or statistically representative market research.</p>
+        </div>
+      </section>
+
+      <!-- ============ PERSONAS ============ -->
+      <section class="page hidden" id="page-personas">
+        <div class="tab-panel" data-tab="generate">
+          <div class="page-title"><h1>Persona generation</h1>
+            <p class="subheading">Create synthetic personas with different backgrounds. Everything generated here is simulated.</p></div>
+          <form id="personaForm" class="panel form-panel" novalidate>
+            <div class="form-grid">
+              <label>Research topic<input id="pgTopic" maxlength="255" placeholder="e.g. Monthly budgeting habits"></label>
+              <label>Number of personas<input id="pgCount" type="number" min="1" max="20" value="3"></label>
+              <label>Location or region<input id="pgLocation" maxlength="150" placeholder="e.g. Chennai, India"></label>
+            </div>
+            <label>Product description or research context
+              <textarea id="pgContext" rows="2" maxlength="3000" placeholder="Defaults to the project description"></textarea></label>
+            <fieldset class="chips-field"><legend>Occupation or professional category <span class="muted">(leave empty to let the model choose)</span></legend>
+              <div id="pgOccupations" class="chips"></div>
+              <input id="pgCustomOcc" maxlength="150" placeholder="Custom profession or target audience, e.g. Farmer">
+            </fieldset>
+            <div class="form-grid">
+              <label>Age from<input id="pgAgeMin" type="number" min="10" max="100" placeholder="18"></label>
+              <label>Age to<input id="pgAgeMax" type="number" min="10" max="100" placeholder="65"></label>
+              <label>Experience level<input id="pgExperience" maxlength="150" placeholder="e.g. first-time user, expert"></label>
+              <label class="check-inline"><input id="pgIncomeOn" type="checkbox" checked> Include monthly income (INR)</label>
+              <label>Income from<input id="pgIncMin" type="number" min="0" placeholder="15000"></label>
+              <label>Income to<input id="pgIncMax" type="number" min="0" placeholder="150000"></label>
+            </div>
+            <div class="form-grid">
+              <label>Personality traits<input id="pgPersonality" maxlength="500"></label>
+              <label>Goals<input id="pgGoals" maxlength="500"></label>
+              <label>Preferences<input id="pgPrefs" maxlength="500"></label>
+              <label>Pain points<input id="pgPains" maxlength="500"></label>
+            </div>
+            <label>Custom instructions<textarea id="pgInstructions" rows="2" maxlength="1500" placeholder="Optional extra guidance for the model"></textarea></label>
+            <div class="form-footer">
+              <label class="check-inline"><input id="pgScores" type="checkbox"> Include budgeting behaviour scores (1-5)</label>
+              <button id="pgSubmit" class="button primary" type="submit">Generate personas</button>
+            </div>
+            <div id="pgProgress" class="progress hidden"></div>
+          </form>
+          <div id="pgResult"></div>
+
+          <div class="section-heading">
+            <div><h2>Persona library</h2><p id="plSubtitle">Personas saved in this project.</p></div>
+          </div>
+          <div class="filters">
+            <input id="plSearch" type="search" placeholder="Search name, occupation, goals…">
+            <select id="plOccupation"><option value="">All occupations</option></select>
+            <button id="plManual" class="button secondary">Add persona manually</button>
+          </div>
+          <div id="plGrid" class="persona-grid"></div>
+          <div id="plMore"></div>
+        </div>
+        <div class="tab-panel hidden" data-tab="history">
+          <div class="page-title"><h1>Persona generation history</h1><p class="subheading">Every generation run for this project, with its criteria and resulting personas.</p></div>
+          <div class="filters" id="pghFilters"></div>
+          <div id="pghList"></div>
+        </div>
+        <div class="tab-panel hidden" data-tab="report">
+          <div class="page-title"><h1>Persona report</h1><p class="subheading">Summary of the saved personas in this project.</p></div>
+          <div id="prBody"></div>
+        </div>
+      </section>
+
+      <!-- ============ SURVEY ============ -->
+      <section class="page hidden" id="page-survey">
+        <div class="tab-panel" data-tab="generate">
+          <div class="page-title"><h1>Survey studio</h1>
+            <p class="subheading">Write questions, choose personas and generate simulated answers saved to your database.</p></div>
+          <div class="panel form-panel">
+            <div id="svEditing" class="editing-banner hidden"></div>
+            <div class="form-grid">
+              <label>Survey title<input id="svTitle" maxlength="255" placeholder="e.g. Expense tracking survey"></label>
+              <label>Research topic<input id="svTopic" maxlength="255" placeholder="e.g. Monthly budgeting"></label>
+            </div>
+            <label>Research objective<textarea id="svObjective" rows="2" maxlength="3000" placeholder="What do you want to learn?"></textarea></label>
+            <div class="block-head"><h3>Questions</h3><button id="svAddQ" class="button secondary small" type="button">Add question</button></div>
+            <div id="svQuestions" class="q-list"></div>
+            <div class="block-head"><h3>Personas</h3>
+              <span class="row-actions"><span id="svPersonaCount" class="muted"></span>
+              <button id="svSelectAll" class="button secondary small" type="button">Select all</button>
+              <button id="svSelectNone" class="button secondary small" type="button">Clear</button></span></div>
+            <div id="svPersonas" class="select-list"></div>
+            <div class="form-footer">
+              <span class="muted" id="svHint"></span>
+              <span class="row-actions">
+                <button id="svReset" class="button secondary" type="button">New survey</button>
+                <button id="svProcess" class="button primary" type="button">Process survey</button>
+              </span>
+            </div>
+            <div id="svProgress" class="progress hidden"></div>
+          </div>
+          <div id="svResults"></div>
+        </div>
+        <div class="tab-panel hidden" data-tab="history">
+          <div class="page-title"><h1>Survey history</h1><p class="subheading">Saved surveys for this project. Open one to read its stored results.</p></div>
+          <div class="filters" id="shFilters"></div>
+          <div id="shList"></div>
+        </div>
+        <div class="tab-panel hidden" data-tab="report">
+          <div class="page-title"><h1>Survey report</h1><p class="subheading">Review a saved survey and download it as a PDF.</p></div>
+          <div class="filters"><select id="srPick"></select></div>
+          <div id="srBody"></div>
+        </div>
+      </section>
+
+      <!-- ============ INTERVIEW ============ -->
+      <section class="page hidden" id="page-interview">
+        <div class="tab-panel" data-tab="start">
+          <div id="ivSetup">
+            <div class="page-title"><h1>Start an interview</h1>
+              <p class="subheading">Ask one synthetic persona questions, one at a time. The transcript is saved after every answer.</p></div>
+            <form id="ivForm" class="panel form-panel" novalidate>
+              <div class="form-grid">
+                <label>Interview title<input id="ivTitle" maxlength="255" placeholder="e.g. Budgeting habits interview"></label>
+                <label>Research topic<input id="ivTopic" maxlength="255"></label>
+                <label>Persona<select id="ivPersona"></select></label>
+              </div>
+              <div id="ivProfile"></div>
+              <label>Interview objective<textarea id="ivObjective" rows="2" maxlength="3000"></textarea></label>
+              <label>Interview guide <span class="muted">(optional)</span><textarea id="ivGuide" rows="3" maxlength="5000" placeholder="Topics or questions you plan to cover"></textarea></label>
+              <div class="form-footer"><span class="muted"></span><button id="ivStart" class="button primary" type="submit">Start interview</button></div>
+            </form>
+          </div>
+          <div id="ivChat" class="hidden"></div>
+        </div>
+        <div class="tab-panel hidden" data-tab="history">
+          <div class="page-title"><h1>Interview history</h1><p class="subheading">Saved interviews for this project.</p></div>
+          <div class="filters" id="ihFilters"></div>
+          <div id="ihList"></div>
+        </div>
+        <div class="tab-panel hidden" data-tab="report">
+          <div class="page-title"><h1>Interview report</h1><p class="subheading">Review a saved transcript and download it as a PDF.</p></div>
+          <div class="filters"><select id="irPick"></select></div>
+          <div id="irBody"></div>
+        </div>
+      </section>
+    </section>
+  </main>
+</div>
+
+<div id="modalRoot"></div>
+<div id="toastRoot" class="toast-root" aria-live="polite"></div>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/ui.js"></script>
+<script src="assets/js/navigation.js"></script>
+<script src="assets/js/projects.js"></script>
+<script src="assets/js/overview.js"></script>
+<script src="assets/js/personas.js"></script>
+<script src="assets/js/history.js"></script>
+<script src="assets/js/surveys.js"></script>
+<script src="assets/js/interviews.js"></script>
+<script src="assets/js/reports.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>
